@@ -1,1 +1,88 @@
+class Character:
+    def __init__(self):
+        # Basic stats
+        self.health = 100
+        self.max_health = 100
+        self.armor = 0
+        self.max_armor = 100
+        
+        # Movement properties
+        self.position = [0, 0]  # x, y coordinates
+        self.direction = 0  # angle in degrees
+        self.move_speed = 8
+        self.run_speed = 16
+        
+        # Weapon and ammo
+        self.current_weapon = "Pistol"
+        self.weapons = {
+            "Fist": True,
+            "Pistol": True,
+            "Shotgun": False,
+            "Chaingun": False,
+            "Rocket Launcher": False,
+            "Plasma Gun": False,
+            "BFG9000": False
+        }
+        self.ammo = {
+            "Bullets": 50,
+            "Shells": 0,
+            "Rockets": 0,
+            "Cells": 0
+        }
+        self.max_ammo = {
+            "Bullets": 200,
+            "Shells": 50,
+            "Rockets": 50,
+            "Cells": 300
+        }
 
+    def take_damage(self, damage):
+        """Handle taking damage with classic DOOM armor mechanics"""
+        if self.armor > 0:
+            # In DOOM, armor absorbs 33% of damage
+            armor_absorption = min(damage // 3, self.armor)
+            self.armor -= armor_absorption
+            damage -= armor_absorption
+        
+        self.health -= damage
+        if self.health < 0:
+            self.health = 0
+        return self.health <= 0  # Returns True if character died
+
+    def heal(self, amount):
+        """Heal the character"""
+        self.health = min(self.health + amount, self.max_health)
+
+    def add_armor(self, amount):
+        """Add armor to the character"""
+        self.armor = min(self.armor + amount, self.max_armor)
+
+    def add_weapon(self, weapon):
+        """Add a new weapon to the character's arsenal"""
+        if weapon in self.weapons:
+            self.weapons[weapon] = True
+            return True
+        return False
+
+    def add_ammo(self, ammo_type, amount):
+        """Add ammo of specified type"""
+        if ammo_type in self.ammo:
+            self.ammo[ammo_type] = min(self.ammo[ammo_type] + amount, self.max_ammo[ammo_type])
+            return True
+        return False
+
+    def switch_weapon(self, weapon):
+        """Switch to a different weapon if owned"""
+        if weapon in self.weapons and self.weapons[weapon]:
+            self.current_weapon = weapon
+            return True
+        return False
+
+    def move(self, dx, dy):
+        """Move the character by the given delta"""
+        self.position[0] += dx
+        self.position[1] += dy
+
+    def rotate(self, angle):
+        """Rotate the character by the given angle in degrees"""
+        self.direction = (self.direction + angle) % 360 
